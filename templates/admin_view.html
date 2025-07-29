@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" href="/static/style.css">
+  <title>Admin Panel</title>
+</head>
+<body>
+  <h2>All Registered Users</h2>
+  <table border="1">
+    <tr><th>Name</th><th>Age</th><th>Gender</th><th>Education</th><th>Address</th><th>Hobbies</th><th>Parent</th><th>Unique ID</th></tr>
+    {% for user in users %}
+    <tr>
+      <td>{{ user[1] }}</td>
+      <td>{{ user[2] }}</td>
+      <td>{{ user[3] }}</td>
+      <td>{{ user[4] }}</td>
+      <td>{{ user[5] }}</td>
+      <td>{{ user[6] }}</td>
+      <td>{{ user[7] }}</td>
+      <td>{{ user[8] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</body>
+</html>

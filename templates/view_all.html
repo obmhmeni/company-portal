@@ -1,0 +1,20 @@
+<!-- File: view_all.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>All Registrations</title>
+</head>
+<body>
+    <h2>All Registered Users</h2>
+    <table border="1">
+        <tr>
+            <th>ID</th><th>Name</th><th>Father</th><th>Skills</th><th>Unique ID</th>
+        </tr>
+        {% for row in data %}
+        <tr>
+            <td>{{ row[0] }}</td><td>{{ row[2] }}</td><td>{{ row[4] }}</td><td>{{ row[10] }}</td><td>{{ row[1] }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+    <a href="/logout">Logout</a>
+</body>

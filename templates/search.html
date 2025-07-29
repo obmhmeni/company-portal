@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search User</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h2>Search User by ID</h2>
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <p class="{{ category }}">{{ message }}</p>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        <form method="POST" action="{{ url_for('search') }}">
+            <div class="form-group">
+                <label for="search_term">Enter User ID</label>
+                <input type="text" id="search_term" name="search_term" required>
+            </div>
+            <button type="submit">Search</button>
+        </form>
+        {% if results %}
+            <h3>Search Results</h3>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Full Name</th>
+                    <th>Contact</th>
+                    <th>Gender</th>
+                    <th>Age</th>
+                    <th>Skills</th>
+                    <th>Work Area</th>
+                </tr>
+                {% for user in results %}
+                    <tr>
+                        <td>{{ user[0] }}</td>
+                        <td>{{ user[1] }}</td>
+                        <td>{{ user[26] }}</td>
+                        <td>{{ user[4] }}</td>
+                        <td>{{ user[5] }}</td>
+                        <td>{{ user[11] }}</td>
+                        <td>{{ user[12] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        {% endif %}
+        <p><a href="{{ url_for('home') }}">Back to Home</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
+    </div>
+</body>
+</html>
