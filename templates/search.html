@@ -1,55 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Search User</title>
+    <title>Search</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Search User by ID</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <p class="{{ category }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <form method="POST" action="{{ url_for('search') }}">
-            <div class="form-group">
-                <label for="search_term">Enter User ID</label>
-                <input type="text" id="search_term" name="search_term" required>
-            </div>
-            <button type="submit">Search</button>
-        </form>
-        {% if results %}
-            <h3>Search Results</h3>
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Contact</th>
-                    <th>Gender</th>
-                    <th>Age</th>
-                    <th>Skills</th>
-                    <th>Work Area</th>
-                </tr>
-                {% for user in results %}
-                    <tr>
-                        <td>{{ user[0] }}</td>
-                        <td>{{ user[1] }}</td>
-                        <td>{{ user[26] }}</td>
-                        <td>{{ user[4] }}</td>
-                        <td>{{ user[5] }}</td>
-                        <td>{{ user[11] }}</td>
-                        <td>{{ user[12] }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
+    <h1>Search Users</h1>
+    <form method="POST" action="{{ url_for('search') }}">
+        <input type="text" name="search_term" placeholder="Enter name or skill">
+        <input type="submit" value="Search">
+    </form>
+    {% if results %}
+        <h2>Results:</h2>
+        <ul>
+        {% for result in results %}
+            <li>{{ result[1] }} ({{ result[2] }}) - {{ result[5] }}</li>
+        {% endfor %}
+        </ul>
+        <a href="{{ url_for('register') }}">Fill Registration Form</a>
+    {% endif %}
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
         {% endif %}
-        <p><a href="{{ url_for('home') }}">Back to Home</a> | <a href="{{ url_for('logout') }}">Logout</a></p>
-        <p> <a href="{{ url_for('register') }}">Fill Registration Form</a></p>
- </div>
+    {% endwith %}
 </body>
 </html>
