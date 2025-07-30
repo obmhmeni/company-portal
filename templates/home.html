@@ -1,60 +1,23 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome</title>
+    <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
 </head>
 <body>
-    <div class="container">
-        <h2>Welcome to the Portal</h2>
-        {% with messages = get_flashed_messages(with_categories=true) %}
-            {% if messages %}
-                {% for category, message in messages %}
-                    <p class="{{ category }}">{{ message }}</p>
-                {% endfor %}
-            {% endif %}
-        {% endwith %}
-        <div class="header-actions">
-            <div class="links">
-                <a href="{{ url_for('admin_login') }}">Admin Login</a>
-                <a href="{{ url_for('worker_login') }}">Worker Login</a>
-            </div>
-            <div class="search-form">
-                <form method="POST" action="{{ url_for('search') }}">
-                    <div class="form-group inline-search">
-                        <input type="text" id="search_term" name="search_term" placeholder="Enter User ID">
-                        <button type="submit">Search</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-        {% if results %}
-            <h3>Search Results</h3>
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Full Name</th>
-                    <th>Contact</th>
-                    <th>Gender</th>
-                    <th>Age</th>
-                    <th>Skills</th>
-                    <th>Work Area</th>
-                </tr>
-                {% for user in results %}
-                    <tr>
-                        <td>{{ user[0] }}</td>
-                        <td>{{ user[1] }}</td>
-                        <td>{{ user[26] }}</td>
-                        <td>{{ user[4] }}</td>
-                        <td>{{ user[5] }}</td>
-                        <td>{{ user[11] }}</td>
-                        <td>{{ user[12] }}</td>
-                    </tr>
-                {% endfor %}
-            </table>
+    <h1>Welcome to Company Portal</h1>
+    <a href="{{ url_for('worker_login') }}">Worker Login</a> |
+    <a href="{{ url_for('admin_login') }}">Admin Login</a> |
+    <a href="{{ url_for('search') }}">Search Users</a>
+    {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <ul>
+            {% for message in messages %}
+                <li>{{ message }}</li>
+            {% endfor %}
+            </ul>
         {% endif %}
-    </div>
+    {% endwith %}
 </body>
 </html>
