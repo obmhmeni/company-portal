@@ -7,9 +7,9 @@ import re
 import hashlib
 from datetime import datetime, timedelta
 import pytz
-# Optional: Uncomment if integrating Telegram bot in app.py
-# import threading
-# from telegram_bot import start_bot
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_secure_secret_key_123')
@@ -291,7 +291,6 @@ def search():
         else:
             print("LOG: No search term provided")
             flash('Please enter a search term', 'error')
-   idh return render_template('search.html')
     print("LOG: Rendering search.html for GET request")
     return render_template('search.html')
 
@@ -405,6 +404,4 @@ def logout():
 if __name__ == '__main__':
     print("LOG: Starting Flask app...")
     init_db()
-    # Optional: Uncomment to start Telegram bot in a thread
-    # threading.Thread(target=start_bot, daemon=True).start()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
