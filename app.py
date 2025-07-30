@@ -1,14 +1,18 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 import sqlite3
+import os
 import string
 import random
 import re
 import hashlib
 from datetime import datetime, timedelta
 import pytz
+# Optional: Uncomment if integrating Telegram bot in app.py
+# import threading
+# from telegram_bot import start_bot
 
 app = Flask(__name__)
-app.secret_key = 'your_secure_secret_key_123'
+app.secret_key = os.environ.get('FLASK_SECRET_KEY', 'your_secure_secret_key_123')
 
 def init_db():
     try:
@@ -39,7 +43,7 @@ def init_db():
             c.execute("INSERT OR IGNORE INTO workers (username, password) VALUES (?, ?)",
                       ('worker1', 'pass123'))
             conn.commit()
-            print("LOG: Database initialized successfully: users, workers, otp_verifications tables created")
+            print("LOG: Database initialized successfully")
     except Exception as e:
         print(f"LOG: Database initialization error: {str(e)}")
 
@@ -73,7 +77,7 @@ def check_otp(phone_number, otp):
             result = c.fetchone()
             if result:
                 stored_otp, timestamp = result
-                print(f"LOG: Found OTP {stored_otp} with timestamp {timestamp} for {phone_number}")
+                print(f"LOG: Found OTP {stored_otp} with timestamp {timestamp}")
                 otp_time = datetime.strptime(timestamp, '%Y-%m-%d %H:%M:%S').replace(tzinfo=pytz.UTC)
                 current_time = datetime.now(pytz.UTC)
                 if (current_time - otp_time).total_seconds() > 300:
@@ -263,27 +267,33 @@ def register():
 
 @app.route('/search', methods=['GET', 'POST'])
 def search():
-    results = []
+    if 'worker' not in session and 'admin' not in session:
+        print("LOG: No worker or admin session, redirecting to worker_login")
+        flash('Please log in first', 'error')
+        return redirect(url_for('worker_login'))
     if request.method == 'POST':
         search_term = request.form.get('search_term')
-        print(f"LOG: Searching for ID: {search_term}")
+        print(f"LOG: Searching for term: {search_term}")
         if search_term:
             with sqlite3.connect('data.db') as conn:
                 c = conn.cursor()
-                c.execute("SELECT * FROM users WHERE id = ?", (search_term,))
+                c.execute("SELECT id, full_name, contact, gender, age, skills, work_area FROM users WHERE full_name LIKE ? OR skills LIKE ?",
+                          (f'%{search_term}%', f'%{search_term}%'))
                 results = c.fetchall()
                 print(f"LOG: Search results: {results}")
-            if not results:
-                print("LOG: No users found for ID")
-                flash('No user found with this ID', 'error')
+            if results:
+                print("LOG: Users found, rendering search.html")
+                flash('Users found!', 'success')
+                return render_template('search.html', results=results)
             else:
-                print("LOG: User found, rendering results")
-                flash('User found!', 'success')
+                print("LOG: No users found")
+                flash('No users found with this search term', 'error')
         else:
             print("LOG: No search term provided")
-            flash('Please enter a user ID', 'error')
-    print("LOG: Rendering home.html with search results")
-    return render_template('home.html', results=results)
+            flash('Please enter a search term', 'error')
+   idh return render_template('search.html')
+    print("LOG: Rendering search.html for GET request")
+    return render_template('search.html')
 
 @app.route('/admin_login', methods=['GET', 'POST'])
 def admin_login():
@@ -312,13 +322,13 @@ def worker_login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        print(f"LOG: Worker login attempt: {username}, {password}")
+        print(f"LOG: Worker login attempt: {username}")
         with sqlite3.connect('data.db') as conn:
             c = conn.cursor()
             c.execute("SELECT * FROM workers WHERE username = ? AND password = ?",
                       (username, password))
             user = c.fetchone()
-            print(f"LOG: Worker found: {user}")
+            print(f"LOG: Worker login result: {user}")
             if user:
                 session['worker'] = username
                 print("LOG: Worker login successful, redirecting to verify_otp")
@@ -369,6 +379,19 @@ def admin_dashboard():
     return render_template('admin.html', users=users, page=page, total=total_users,
                           per_page=per_page, worker_stats=worker_stats)
 
+@app.route('/view_all')
+def view_all():
+    if 'admin' not in session:
+        print("LOG: No admin session, redirecting to admin_login")
+        flash('Please log in as admin', 'error')
+        return redirect(url_for('admin_login'))
+    with sqlite3.connect('data.db') as conn:
+        c = conn.cursor()
+        c.execute("SELECT id, full_name, contact, gender, age, skills, work_area FROM users")
+        users = c.fetchall()
+        print(f"LOG: View all users: {users}")
+    return render_template('view_all.html', users=users)
+
 @app.route('/logout')
 def logout():
     print("LOG: Logging out, clearing session")
@@ -382,5 +405,6 @@ def logout():
 if __name__ == '__main__':
     print("LOG: Starting Flask app...")
     init_db()
-    app.debug = True
-    app.run(host='0.0.0.0', port=5000)
+    # Optional: Uncomment to start Telegram bot in a thread
+    # threading.Thread(target=start_bot, daemon=True).start()
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
